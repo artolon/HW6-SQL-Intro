@@ -7,9 +7,9 @@ SELECT customer_id, first_name, last_name
 FROM customer
 WHERE last_name LIKE 'T%'
 ORDER BY first_name;
--- This query selects the customer_id, first_name, and last_name columns from the
-   --- customer table of the data model. Then, it filters results to only select 
-   --- where the last_name column begins with 'T'. Finally, we sort by first_name, A-Z
+/* This query selects the customer_id, first_name, and last_name columns from the
+   customer table of the data model. Then, it filters results to only select 
+   where the last_name column begins with 'T'. Finally, we sort by first_name, A-Z*/
 
 
 
@@ -19,30 +19,30 @@ FROM rental
 WHERE return_date > '2005-05-27 23:59:59'
 AND return_date < '2005-06-02 00:00:01'
 ORDER BY return_date;
--- This query selects the rental_id and return_date columns from the rental table of the data model.
-   -- Query is filtered where the return date is greater than 2005-05-27 23:59:59, but
-   -- less than 2005-06-02 00:00:01. This gives us results between 5/28 and 6/1.
-   -- Finally, the results are ordered by return_date to make checking our results easier
+/* This query selects the rental_id and return_date columns from the rental table of the data model.
+   Query is filtered where the return date is greater than 2005-05-27 23:59:59, but
+   less than 2005-06-02 00:00:01. This gives us results between 5/28 and 6/1.
+   Finally, the results are ordered by return_date to make checking our results easier*/
 
 
 
 -- 3.	How would you determine which movies are rented the most?
----------- I would want to select the 'inventory_id' column from the rental table 
----------- because that likely represents one movie. Then, I can group by inventory_id  
----------- and ask for a count to count how many times that movie was rented.
----------- I then sort by the count in descending order to view the ids
----------- with the highest count (i.e. rented the most often). 
+        /*I would want to select the 'inventory_id' column from the rental table 
+			because that likely represents one movie. Then, I can group by inventory_id  
+			and ask for a count to count how many times that movie was rented.
+			I then sort by the count in descending order to view the ids
+    		        with the highest count (i.e. rented the most often).;*/
 
 -- original query
-SELECT inventory_id, count(*)
+/*SELECT inventory_id, count(*)
 FROM rental
 GROUP BY inventory_id
-ORDER BY count DESC; --4580 rows
+ORDER BY count DESC; --4580 rows*/
 
--- According to the data model, I can also join on inventory to get the inventory_id
-   --Joining by inventory_id will allow me to connect this result to the film table
-   --The film table will allow me to get the actual film title. Modifying in this way
-   --will allow me to have a more specific sense of which movies are rented most
+/*   According to the data model, I can also join on inventory to get the inventory_id
+     Joining by inventory_id will allow me to connect this result to the film table
+     The film table will allow me to get the actual film title. Modifying in this way
+     will allow me to have a more specific sense of which movies are rented most */
 
 -- modified query
 SELECT f.title, count(inventory_id) AS rental_count
@@ -59,10 +59,10 @@ SELECT customer_id, SUM(amount) AS amount_spent
 FROM payment
 GROUP BY customer_id
 ORDER BY SUM(amount);
--- In this query, I am selecting the customer_id column as well as the aggregated sum of
-   -- the 'amount' column from the payment table. I am grouping by the customer_id and
-   -- then ordering by the sum to see how much customers spent. I also aliased the amount
-   -- to make it extra clear.
+/*  In this query, I am selecting the customer_id column as well as the aggregated sum of
+    the 'amount' column from the payment table. I am grouping by the customer_id and
+    then ordering by the sum to see how much customers spent. I also aliased the amount
+    to make it extra clear.*/
 
 
 
@@ -80,6 +80,14 @@ WHERE release_year=2006
 GROUP BY a.actor_id, film.release_year
 ORDER BY film_count DESC;
 -- Gina Degeneres was in the most movies in 2006. Gina was in 42 movies, to be precise. 
+
+/* In this query, I am joining the film_actor table to the actor table, using 'actor_id'.
+According to the data model, this was a shared variable. I was then able to join the film
+table to my result using the 'film_id' variable. I filted this entire result by release
+year being 2006. I aggregated by film count, grouping by the actor_id and the release year.
+This allowed me to see which actor was in the most movies. Finally, I ordered by the 
+film_count to better see who was in the most movies. I only selected actor_id, actor_name,
+film_count, and release_year. */
 
 
 
@@ -146,6 +154,11 @@ JOIN category USING (category_id)
 GROUP BY genre
 ORDER BY avg_rental_rate DESC;
 
+/* In this query, I joined the film table to the film_category table, using the common
+'film_id' variable. I then joined the category table by using the common 'category_id'
+variable. I grouped by the alias 'genre' after aggregated by average rental rate. To
+simplify the result, I only selected 'genre' and 'avg_rental_rate'. */
+
 
 
 -- 8.	How many films were returned late? Early? On time?
@@ -174,6 +187,16 @@ ORDER BY inventory_id)
 
 -- 7738 Movies were returned early, 6586 were returned late, and 1720 movies were returned on time
 
+/* This query involved many steps, and I went through several revisions. I ended up using
+the sub-query method. First, I determined which tables I needed by referencing the data
+model. I knew I needed film, inventory, and rental. I joined inventory to film using the
+film_id and then I joined rental using inventory_id. I created a new variable called
+'days_rented' where I substracted the rental date from the return date. I compared this
+to the 'duration' variable to create a new variable, where I categorized things as 'early',
+'on time', or 'late'. I made all of this a sub-query block that I called 'return_label_t'.
+Finally, I was able to query from that table to select the return_label variable I had
+created. I aggregated by count, grouped by return label, and then ordered by the count.*/
+
 
 
 -- 9.	What categories are the most rented and what are their total sales?
@@ -188,6 +211,14 @@ ORDER BY count DESC;
 
 -- Sports, animation, and action are the top three most rented (1st, 2nd, 3rd, respectively). Their total sales are as follows:
 -----Sports=$4892.19, animation=$4245.31, action=$3951.84
+
+/* For this query, I had to utilize a string of joins to get the variables I needed. I 
+joined film_category to category using 'category_id'. This allowed me to join inventory 
+table by film_id, and then rental table by inventory_id and then the payment table by
+the rental_id. I grouped my query by the alias 'genre', which was created from the name
+column of the category table. I aggregated by the sum of amount to get the total sales
+and then count of rental_id to determine movies rented. I ordered everything by this
+count to determine which movies were rented the most. */
 
 
 

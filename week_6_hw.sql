@@ -263,3 +263,26 @@ ORDER BY count DESC;
 
 -- Bonus:
 -- Write a query that shows how many films were rented each month. Group them by category and month. 
+ 
+SELECT DATE_PART('month',rental_date) AS month_digit, 
+	   CASE WHEN DATE_PART('month',rental_date) = 2 THEN 'February' 
+	   WHEN DATE_PART('month',rental_date) = 5 THEN 'May'
+	   WHEN DATE_PART('month',rental_date) = 6 THEN 'June'
+	   WHEN DATE_PART('month',rental_date) = 7 THEN 'July'
+	   WHEN DATE_PART('month',rental_date) = 8 THEN 'August'
+	   END 
+	      AS month_name,
+	   name AS genre, COUNT(rental_id) AS rental_count
+FROM rental
+JOIN inventory USING (inventory_id)
+JOIN film_category USING (film_id)
+JOIN category USING (category_id)
+GROUP BY genre, month_digit
+ORDER BY month_digit, genre, rental_count DESC;
+
+/* First, I used the rental table to obtain the 'rental_date' variable. I then used the  
+date_part function to get the month of each rental_date. I then used a series of joins
+in order to connect the category name. I joined inventory to rental, using 'inventory_id'.
+I joined film_category using 'film_id'. I was then finally able to join category 
+using 'category_id' in order to get the name. Then, I grouped by category name (as genre)
+and the month rented. I ordered the table for easier interpretation. */
